@@ -1,42 +1,43 @@
- import { http, HttpResponse } from 'msw';
+import { http, HttpResponse } from "msw";
 
 export const handlers = [
-  http.get('/api/health', () => HttpResponse.json({ status: 'ok' })),
-  http.get('/api/bootstrap', () =>
-    HttpResponse.json({
-        http}get('/api/health', () => 
-    HttpResponse.json({
-      status: 'ok',
-      message: 'Mock API working'
-      currentUser: null,
-      currentStudent: null,
-      currentParent: null,
-      schools: [],
-      messages: [],
-      resources: [],
-      events: [],
-      exams: [],
-      announcements: [],
-      broadcastMessage: null,
-      chatHistory: [],
-    })
-  ),
-  http.post('/api/auth', async ({ request }) => {
-    const body = await request.json();
-    if (body?.type === 'teacher') {
-      return HttpResponse.json({ user: { id: 'T-1', name: 'Demo Teacher' }, staff: [] });
-    }
-    if (body?.type === 'student') {
-      return HttpResponse.json({ user: { id: 'S-1', name: 'Demo Student' } });
-    }
-    if (body?.type === 'parent') {
-      return HttpResponse.json({ user: { id: 'P-1', name: 'Demo Parent' } });
-    }
-    return new HttpResponse('Bad Request', { status: 400 });
+  // Health check route
+  http.get("/api/health", () => {
+    return HttpResponse.json({
+      status: "ok",
+      message: "Backend is running",
+    });
   }),
-  http.post('/api/actions/broadcast-message', async ({ request }) => {
-    const { message } = await request.json();
-    return HttpResponse.json({ message });
+
+  // Example auth mock
+  http.post("/api/auth/login", async ({ request }) => {
+    const payload = (await request.json().catch(() => null)) as
+      | { email?: string }
+      | null;
+
+    if (!payload?.email) {
+      return HttpResponse.json(
+        { message: "Email is required" },
+        { status: 400 }
+      );
+    }
+
+    return HttpResponse.json({
+      token: "mock_jwt_token",
+      user: {
+        id: "123",
+        email: payload.email,
+        role: "teacher",
+      },
+    });
   }),
-  http.delete('/api/actions/broadcast-message', () => HttpResponse.json({ ok: true })),
+
+  // Example current user mock
+  http.get("/api/auth/me", () => {
+    return HttpResponse.json({
+      id: "123",
+      email: "info-smartschool@gmail.com",
+      role: "teacher",
+    });
+  }),
 ];
