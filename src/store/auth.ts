@@ -1,81 +1,83 @@
-import { create } from 'zustand';
-import { User } from '../utils/validation';
-import { STORAGE_KEYS, setLocalStorage, removeLocalStorage } from '../utils/storage';
-import { handleApiError } from '../utils/error-handling';
-import axios from 'axios';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-interface AuthState {
+type User = {
+  id: string;
+  email: string;
+  role: "teacher" | "student" | "parent";
+};
+
+type AuthState = {
   user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
   token: string | null;
+  isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  register: (userData: {
-    email: string;
-    password: string;
-    name: string;
-    role: User['role'];
-  }) => Promise<void>;
-}
+  register: (email: string, password: string, role: User["role"]) => Promise<void>;
+};
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  isAuthenticated: false,
-  isLoading: true,
-  token: null,
-
-  login: async (email: string, password: string) => {
-    try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/login`, {
-        email,
-        password,
-      });
-
-      const { token, user } = response.data;
-
-      setLocalStorage(STORAGE_KEYS.AUTH_TOKEN, token);
-      setLocalStorage(STORAGE_KEYS.USER_DATA, user);
-
-      set({
-        user,
-        token,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-    } catch (error) {
-      throw handleApiError(error);
-    }
-  },
-
-  logout: () => {
-    removeLocalStorage(STORAGE_KEYS.AUTH_TOKEN);
-    removeLocalStorage(STORAGE_KEYS.USER_DATA);
-
-    set({
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
       user: null,
       token: null,
       isAuthenticated: false,
-      isLoading: false,
-    });
-  },
+      login: async (email, password) => {
+        try {
+          const response = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
 
-  register: async (userData) => {
-    try {
-      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/auth/register`, userData);
-      const { token, user } = response.data;
+          if (!response.ok) {
+            throw new Error("Login failed");
+          }
 
-      setLocalStorage(STORAGE_KEYS.AUTH_TOKEN, token);
-      setLocalStorage(STORAGE_KEYS.USER_DATA, user);
+          const data = await response.json();
+          set({
+            user: data.user,
+            token: data.token,
+            isAuthenticated: true,
+          });
+        } catch (error) {
+          console.error("Login error:", error);
+          throw error;
+        }
+      },
+      logout: () => {
+        set({ user: null, token: null, isAuthenticated: false });
+      },
+      register: async (email, password, role) => {
+        try {
+          const response = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password, role }),
+          });
 
-      set({
-        user,
-        token,
-        isAuthenticated: true,
-        isLoading: false,
-      });
-    } catch (error) {
-      throw handleApiError(error);
+          if (!response.ok) {
+            throw new Error("Registration failed");
+          }
+
+          const data = await response.json();
+          set({
+            user: data.user,
+            token: data.token,
+            isAuthenticated: true,
+          });
+        } catch (error) {
+          console.error("Registration error:", error);
+          throw error;
+        }
+      },
+    }),
+    {
+      name: "auth-storage",
     }
-  },
-}));
+  )
+);
