@@ -2,24 +2,39 @@
   "hash": "d2b42c0b",
   "configHash": "98aae108",
   "lockfileHash": "7b3b78dd",
-  "browserHash": "0a454b21",
+  "browserHash": "fa1c41fe",
   "optimized": {
     "react/jsx-dev-runtime": {
       "src": "../../node_modules/react/jsx-dev-runtime.js",
       "file": "react_jsx-dev-runtime.js",
-      "fileHash": "4dd81048",
+      "fileHash": "304375ab",
       "needsInterop": true
     },
     "react-router-dom": {
       "src": "../../node_modules/react-router-dom/dist/index.js",
       "file": "react-router-dom.js",
-      "fileHash": "eacfe29c",
+      "fileHash": "695877db",
+      "needsInterop": false
+    },
+    "zustand": {
+      "src": "../../node_modules/zustand/esm/index.mjs",
+      "file": "zustand.js",
+      "fileHash": "03731dcf",
+      "needsInterop": false
+    },
+    "zustand/middleware": {
+      "src": "../../node_modules/zustand/esm/middleware.mjs",
+      "file": "zustand_middleware.js",
+      "fileHash": "5fe33f97",
       "needsInterop": false
     }
   },
   "chunks": {
-    "chunk-KLHSAJYV": {
-      "file": "chunk-KLHSAJYV.js"
+    "chunk-SZVM5CFR": {
+      "file": "chunk-SZVM5CFR.js"
+    },
+    "chunk-5WRI5ZAA": {
+      "file": "chunk-5WRI5ZAA.js"
     }
   }
 }

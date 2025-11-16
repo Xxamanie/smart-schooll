@@ -1,5 +1,5 @@
 import { navigateTo } from './router';
-import { initializeState } from './state';
+//import { initializeState } from './state';
 import { setupAPI } from './api';
 
 // Error handling for uncaught exceptions
@@ -17,7 +17,7 @@ window.addEventListener('error', (event) => {
 async function initializeApp() {
     try {
         // Initialize state management
-        await initializeState();
+        //await initializeState();
 
         // Setup API with base configuration
         setupAPI();
